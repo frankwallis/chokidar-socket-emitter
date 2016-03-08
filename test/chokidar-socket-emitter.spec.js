@@ -38,6 +38,62 @@ describe('chokidar-socket-emitter', function () {
     }, 300)
   })
 
+  it('shoud default baseURL to "." if package.json not found', function (done) {
+    chokidarServer = chokidarEvEmitter({port: 7091, path: process.cwd(), dir: './test'})
+    var socket = require('socket.io-client')('http://localhost:7091')
+    socket.on('change', function (data) {
+      expect(data.path).to.equal('test/nested-baseURL/labrat.txt') // <-- what should this be?
+      done()
+    })
+    setTimeout(() => {
+      fs.writeFile('./test/nested-baseURL/labrat.txt', 'test3', (error) => {
+        expect(error).to.equal(null)
+      })
+    }, 300)
+  })
+
+  it('shoud default baseURL to "." if baseURL not found in package.json', function (done) {
+    chokidarServer = chokidarEvEmitter({port: 7091, dir: './test/empty-package'})
+    var socket = require('socket.io-client')('http://localhost:7091')
+    socket.on('change', function (data) {
+      expect(data.path).to.equal('test/nested-baseURL/labrat.txt')
+      done()
+    })
+    setTimeout(() => {
+      fs.writeFile('./test/nested-baseURL/labrat.txt', 'test4', (error) => {
+        expect(error).to.equal(null)
+      })
+    }, 300)
+  })
+
+  it('shoud default baseURL to "." if package.json not found', function (done) {
+    chokidarServer = chokidarEvEmitter({port: 7091, path: process.cwd(), dir: './test'})
+    var socket = require('socket.io-client')('http://localhost:7091')
+    socket.on('change', function (data) {
+      expect(data.path).to.equal('test/nested-baseURL/labrat.txt')
+      done()
+    })
+    setTimeout(() => {
+      fs.writeFile('./test/nested-baseURL/labrat.txt', 'test3', (error) => {
+        expect(error).to.equal(null)
+      })
+    }, 300)
+  })
+
+  it('shoud set ev.path relative to opts.path if set', function (done) {
+    chokidarServer = chokidarEvEmitter({port: 7091, dir: './test/empty-package', path: process.cwd()})
+    var socket = require('socket.io-client')('http://localhost:7091')
+    socket.on('change', function (data) {
+      expect(data.path).to.equal('test/nested-baseURL/labrat.txt')
+      done()
+    })
+    setTimeout(() => {
+      fs.writeFile('./test/nested-baseURL/labrat.txt', 'test4', (error) => {
+        expect(error).to.equal(null)
+      })
+    }, 300)
+  })
+
   it('should expose watcher for manual event subscription', function (done) {
     chokidarServer = chokidarEvEmitter({port: 7090}, done)
   })
